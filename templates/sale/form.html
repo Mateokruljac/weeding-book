@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card card-soft">
+    <div class="card-body">
+        <h2 class="h4 mb-3">{% if sala %}Uredi salu{% else %}Nova sala{% endif %}</h2>
+        <form method="post" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="naziv">Naziv</label>
+                <input class="form-control" id="naziv" name="naziv" required value="{{ sala.naziv if sala else '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="lokacija">Lokacija</label>
+                <input class="form-control" id="lokacija" name="lokacija" required value="{{ sala.lokacija if sala else '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="kapacitet">Kapacitet</label>
+                <input class="form-control" id="kapacitet" type="number" min="0" name="kapacitet" required value="{{ sala.kapacitet if sala else '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="cijena">Cijena (€)</label>
+                <input class="form-control" id="cijena" type="number" min="0" step="0.01" name="cijena" required value="{{ sala.cijena if sala else '' }}">
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Spremi</button>
+                <a class="btn btn-outline-secondary" href="{{ url_for('sale_index') }}">Odustani</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% if sala %}
+<div class="card card-soft mt-4">
+    <div class="card-body">
+        <h3 class="h5 mb-3">Rezervacije za ovu salu</h3>
+        <div class="table-responsive table-soft">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Par</th>
+                        <th>Datum</th>
+                        <th>Status</th>
+                        <th>Gostiju</th>
+                        <th>Cijena najma (€)</th>
+                        <th class="text-end">Akcija</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rezervacije %}
+                    <tr>
+                        <td>{{ r.ime_i_prezime_mladenke }} &amp; {{ r.ime_i_prezime_mladozenje }}</td>
+                        <td>{{ r.datum }}</td>
+                        <td>{{ r.status }}</td>
+                        <td>{{ r.broj_gostiju }}</td>
+                        <td>{{ "%.2f"|format(r.cijena_najma) }} €</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('rezervacije_edit', rezervacija_id=r.id) }}" title="Uredi rezervaciju" aria-label="Uredi rezervaciju">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-3">Nema rezervacija za ovu salu.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

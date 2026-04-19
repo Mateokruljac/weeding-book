@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card card-soft">
+    <div class="card-body text-center py-5">
+        <h1 class="display-6 mb-3">Wedding Hall Manager</h1>
+        <p class="text-muted mb-4">
+            Ovdje mozes pretraziti sale ili napraviti rezervaciju jednim klikom.
+        </p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <a class="btn btn-primary" href="{{ url_for('sale_index') }}">Pretrazi sale</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('rezervacije_create') }}">Napravi rezervaciju</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
