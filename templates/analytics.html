@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block content %}
+{% set s = stats %}
+<h2 class="h4 mb-4">Analitika</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Ukupno rezervacija</h3>
+                <p class="display-6 fw-semibold mb-0">{{ s.get('total', 0) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Odobrene</h3>
+                <p class="display-6 fw-semibold mb-0 text-success">{{ s.get('approved', 0) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Neodobrene</h3>
+                <p class="display-6 fw-semibold mb-0 text-danger">{{ s.get('not_approved', 0) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Stopa odobrenja</h3>
+                <p class="display-6 fw-semibold mb-0">{{ s.get('approval_rate', 0) }}%</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Ukupno sala</h3>
+                <p class="display-6 fw-semibold mb-0">{{ s.get('total_halls', 0) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Prihod (odobrene)</h3>
+                <p class="display-6 fw-semibold mb-0">{{ "%.2f"|format(s.get('total_revenue', 0)) }} €</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Prosječan broj gostiju</h3>
+                <p class="display-6 fw-semibold mb-0">{{ "%.0f"|format(s.get('avg_guests', 0)) }}</p>
+                <small class="text-muted">Samo odobrene rezervacije</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h6 text-muted mb-2">Nadolazeće rezervacije</h3>
+                <p class="display-6 fw-semibold mb-0">{{ s.get('upcoming', 0) }}</p>
+                <small class="text-muted">Odobrene, od danas nadalje</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-1">Najpopularnije sale</h3>
+                <p class="text-muted small mb-3">Broj odobrenih rezervacija po sali</p>
+                {% if top_halls and top_halls|selectattr('count')|list|length > 0 %}
+                <canvas id="hallChart"></canvas>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">Nema odobrenih rezervacija za prikaz.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-1">Status rezervacija</h3>
+                <p class="text-muted small mb-3">Udio odobrenih i neodobrenih</p>
+                {% if s.get('total', 0) > 0 %}
+                <canvas id="statusChart"></canvas>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">Nema rezervacija za prikaz.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h3 class="h5 mb-1">Prihod po mjesecima</h3>
+                <p class="text-muted small mb-3">Samo odobrene rezervacije (€)</p>
+                {% if by_month %}
+                <canvas id="revenueChart"></canvas>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">Nema prihoda za prikaz.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if by_month %}
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <div class="card card-soft">
+            <div class="card-body">
+                <h3 class="h5 mb-1">Odobrene rezervacije po mjesecima</h3>
+                <p class="text-muted small mb-3">Broj vjencanja po mjesecu</p>
+                <canvas id="monthChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    const chartColors = {
+        pink: "rgba(217, 109, 149, 0.75)",
+        pinkBorder: "rgba(141, 53, 87, 1)",
+        green: "rgba(25, 135, 84, 0.75)",
+        red: "rgba(220, 53, 69, 0.75)",
+    };
+
+    {% if top_halls and top_halls|selectattr('count')|list|length > 0 %}
+    new Chart(document.getElementById("hallChart"), {
+        type: "bar",
+        data: {
+            labels: [{% for h in top_halls if h.count %}"{{ h.name }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: "Odobrene rezervacije",
+                data: [{% for h in top_halls if h.count %}{{ h.count }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: chartColors.pink,
+                borderColor: chartColors.pinkBorder,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+    {% endif %}
+
+    {% if s.get('total', 0) > 0 %}
+    new Chart(document.getElementById("statusChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Odobrene", "Neodobrene"],
+            datasets: [{
+                data: [{{ s.get('approved', 0) }}, {{ s.get('not_approved', 0) }}],
+                backgroundColor: [chartColors.green, chartColors.red],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            plugins: { legend: { position: "bottom" } }
+        }
+    });
+    {% endif %}
+
+    {% if by_month %}
+    new Chart(document.getElementById("revenueChart"), {
+        type: "bar",
+        data: {
+            labels: [{% for m in by_month %}"{{ m.month }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: "Prihod (€)",
+                data: [{% for m in by_month %}{{ m.revenue }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: chartColors.pink,
+                borderColor: chartColors.pinkBorder,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById("monthChart"), {
+        type: "line",
+        data: {
+            labels: [{% for m in by_month %}"{{ m.month }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: "Broj odobrenih",
+                data: [{% for m in by_month %}{{ m.count }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                borderWidth: 2,
+                fill: true,
+                borderColor: chartColors.pinkBorder,
+                backgroundColor: "rgba(217, 109, 149, 0.15)",
+                pointBackgroundColor: chartColors.pinkBorder,
+                tension: 0.35
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

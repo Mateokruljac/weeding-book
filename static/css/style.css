@@ -1,0 +1,147 @@
+body {
+    background: #fff7fb;
+}
+
+.navbar-glass {
+    background: white;
+    border-bottom: 1px solid #f5cfe0;
+}
+
+.brand-logo {
+    width: 32px;
+    height: 32px;
+}
+
+.navbar .nav-link {
+    color: #8a4c67;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    background: #ffe7f1;
+    color: #6f2f4b;
+}
+
+.card {
+    border: 1px solid #f5d8e5;
+    border-radius: 12px;
+}
+
+.card-soft {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.table-soft {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-soft thead th {
+    background: #ffeef5;
+    color: #7a3f58;
+    font-weight: 600;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0c9da;
+}
+
+.table-soft thead th .sort-link {
+    color: #7a3f58;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0;
+}
+
+.sort-icons {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 0.7;
+    font-size: 0.7rem;
+}
+
+.sort-icons .sort-inactive {
+    opacity: 0.3;
+}
+
+.sort-icons .sort-active {
+    opacity: 1;
+    color: #7a3f58;
+}
+
+.table-soft thead th .sort-link:hover {
+    color: #5a273d;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background: #fff6fa;
+}
+
+.btn-primary {
+    background: #d96d95;
+    border-color: #d96d95;
+}
+
+.btn-primary:hover {
+    background: #c75b84;
+    border-color: #c75b84;
+}
+
+.btn-outline-primary {
+    color: #8d3557;
+    border-color: #d9a4ba;
+}
+
+.btn-outline-primary:hover {
+    background: #efbfd1;
+    border-color: #efbfd1;
+    color: #5a273d;
+}
+
+.swal2-confirm {
+    background-color: #d96d95 !important;
+}
+
+.search-input {
+    min-width: 220px;
+}
+
+.sort-link {
+    color: #7a3f58;
+    text-decoration: none;
+}
+
+.sort-link:hover {
+    color: #5a273d;
+}
+
+.filter-badge {
+    background: #ffe7f1;
+    color: #6f2f4b;
+}
+
+.readonly-field {
+    background-color: #ececec;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.pagination {
+    --bs-pagination-color: #8d3557;
+    --bs-pagination-bg: #fff;
+    --bs-pagination-border-color: #d9a4ba;
+    --bs-pagination-hover-color: #5a273d;
+    --bs-pagination-hover-bg: #ffe7f1;
+    --bs-pagination-hover-border-color: #d9a4ba;
+    --bs-pagination-focus-color: #5a273d;
+    --bs-pagination-focus-bg: #ffe7f1;
+    --bs-pagination-focus-box-shadow: 0 0 0 0.2rem rgba(217, 109, 149, 0.25);
+    --bs-pagination-active-color: #fff;
+    --bs-pagination-active-bg: #d96d95;
+    --bs-pagination-active-border-color: #d96d95;
+    --bs-pagination-disabled-color: #b08a9a;
+    --bs-pagination-disabled-bg: #fff7fb;
+    --bs-pagination-disabled-border-color: #f0c9da;
+}

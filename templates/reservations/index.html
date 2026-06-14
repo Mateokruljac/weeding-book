@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% from "macros/sort.html" import sort_th, sort_badge %}
+{% from "macros/pagination.html" import pagination_nav %}
+{% block content %}
+{% set sort_labels = {'couple': 'Par', 'hall': 'Sala', 'date': 'Datum', 'guest_count': 'Broj gostiju', 'status': 'Status', 'price': 'Cijena najma'} %}
+{% set filter_params = {'search': search, 'status': filters.status, 'date_from': filters.date_from, 'date_to': filters.date_to, 'hall_id': filters.hall_id} %}
+{% set has_filters = search or filters.status or filters.date_from or filters.date_to or filters.hall_id %}
+<div class="card card-soft">
+    <div class="card-body">
+        <div class="mb-3">
+            <a class="btn btn-primary" href="{{ url_for('reservations.reservation_create') }}">Dodaj rezervaciju</a>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h3 class="h5 mb-0">Popis rezervacija</h3>
+            <div class="d-flex gap-2 flex-wrap">
+                <form method="get" class="d-flex gap-2">
+                    <input class="form-control search-input" name="search" value="{{ search }}" placeholder="Pretraži tablicu">
+                    <input type="hidden" name="status" value="{{ filters.status }}">
+                    <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+                    <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+                    <input type="hidden" name="hall_id" value="{{ filters.hall_id }}">
+                    <input type="hidden" name="sort" value="{{ sorting.sort }}">
+                    <input type="hidden" name="order" value="{{ sorting.order }}">
+                    <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#resFilterCollapse" title="Filter">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+        {% if has_filters %}
+        <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+            <small class="text-muted">Aktivni filteri:</small>
+            {% if search %}<span class="badge filter-badge">Pretraga: {{ search }}</span>{% endif %}
+            {% if filters.hall_id and hall_map.get(filters.hall_id) %}
+                <span class="badge filter-badge">Sala: {{ hall_map[filters.hall_id] }}</span>
+            {% endif %}
+            {% if filters.status %}<span class="badge filter-badge">Status: {{ filters.status | status_label }}</span>{% endif %}
+            {% if filters.date_from %}<span class="badge filter-badge">Od: {{ filters.date_from }}</span>{% endif %}
+            {% if filters.date_to %}<span class="badge filter-badge">Do: {{ filters.date_to }}</span>{% endif %}
+            {{ sort_badge(sorting, sort_labels) }}
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('reservations.reservations_index', sort=sorting.sort, order=sorting.order) }}">Očisti filtere</a>
+        </div>
+        {% elif sorting.sort != 'date' or sorting.order != 'asc' %}
+        <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+            <small class="text-muted">Aktivno sortiranje:</small>
+            {{ sort_badge(sorting, sort_labels) }}
+        </div>
+        {% endif %}
+        <div class="collapse mb-3" id="resFilterCollapse">
+            <div class="border rounded p-3">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label" for="hall_id">Sala</label>
+                        <select class="form-select" id="hall_id" name="hall_id">
+                            <option value="">Sve sale</option>
+                            {% for id, label in hall_map.items() %}
+                            <option value="{{ id }}" {% if filters.hall_id == id %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label" for="status">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Svi</option>
+                            <option value="approved" {% if filters.status == 'approved' %}selected{% endif %}>Odobrena</option>
+                            <option value="not approved" {% if filters.status == 'not approved' %}selected{% endif %}>Nije odobrena</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label" for="date_from">Od</label>
+                        <input class="form-control" id="date_from" type="date" name="date_from" value="{{ filters.date_from }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label" for="date_to">Do</label>
+                        <input class="form-control" id="date_to" type="date" name="date_to" value="{{ filters.date_to }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" type="submit">Primijeni</button>
+                    </div>
+                    <input type="hidden" name="search" value="{{ search }}">
+                    <input type="hidden" name="sort" value="{{ sorting.sort }}">
+                    <input type="hidden" name="order" value="{{ sorting.order }}">
+                </form>
+            </div>
+        </div>
+        <div class="table-responsive table-soft">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        {{ sort_th('couple', 'Par', sorting, 'reservations.reservations_index', filter_params) }}
+                        {{ sort_th('hall', 'Sala', sorting, 'reservations.reservations_index', filter_params) }}
+                        {{ sort_th('date', 'Datum', sorting, 'reservations.reservations_index', filter_params) }}
+                        {{ sort_th('guest_count', 'Broj gostiju', sorting, 'reservations.reservations_index', filter_params) }}
+                        {{ sort_th('status', 'Status', sorting, 'reservations.reservations_index', filter_params) }}
+                        {{ sort_th('price', 'Cijena najma (€)', sorting, 'reservations.reservations_index', filter_params) }}
+                        <th class="text-end">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reservations %}
+                    <tr>
+                        <td>{{ r.bride_name }} &amp; {{ r.groom_name }}</td>
+                        <td>{{ r.wedding_hall.name }} ({{ r.wedding_hall.location }})</td>
+                        <td>{{ r.date }}</td>
+                        <td>{{ r.guest_count }}</td>
+                        <td>{{ r.status | status_label }}</td>
+                        <td>{{ "%.2f"|format(r.price) }} €</td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('reservations.reservation_edit', reservation_id=r.id) }}" title="Uredi">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" class="confirm-delete" data-message="Ova se akcija ne može poništiti." action="{{ url_for('reservations.reservation_delete', reservation_id=r.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" title="Obriši">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                        <tr><td colspan="7" class="text-center py-3">Nema rezultata.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+            <small class="text-muted">Ukupno zapisa: {{ pagination.total_items }}</small>
+            {{ pagination_nav(pagination, 'reservations.reservations_index', filter_params, sorting, 'Paginacija rezervacija') }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

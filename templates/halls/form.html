@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "macros/pagination.html" import pagination_nav %}
+{% block content %}
+
+<div class="card card-soft">
+    <div class="card-body">
+        <h2 class="h4 mb-3">{% if hall %}Uredi salu{% else %}Nova sala{% endif %}</h2>
+        <form method="post" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="name">Naziv</label>
+                <input class="form-control" id="name" name="name" required value="{{ hall.name if hall else '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="location">Lokacija</label>
+                <input class="form-control" id="location" name="location" required value="{{ hall.location if hall else '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="capacity">Kapacitet</label>
+                <input class="form-control" id="capacity" type="number" min="0" name="capacity" required value="{{ hall.capacity if hall else '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="price">Cijena (€)</label>
+                <input class="form-control" id="price" type="number" min="0" step="0.01" name="price" required value="{{ hall.price if hall else '' }}">
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Spremi</button>
+                <a class="btn btn-outline-secondary" href="{{ url_for('halls.halls_index') }}">Odustani</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if hall %}
+<div class="card card-soft mt-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h3 class="h5 mb-0">Rezervacije za ovu salu</h3>
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#newReservation">
+                Nova rezervacija
+            </button>
+        </div>
+        <div class="collapse {% if open_form %}show{% endif %} mb-4" id="newReservation">
+            <div class="border rounded p-3">
+                <h4 class="h6 mb-3">Zakaži rezervaciju</h4>
+                <form method="post" action="{{ url_for('halls.hall_reservation_create', hall_id=hall.id) }}" class="row g-3">
+                    {% with fd=reservation_form or {}, fe=reservation_errors or {}, allow_past_date=false, fixed_hall=hall, date_hint='Datum se ne može spremiti ako već postoji odobrena rezervacija.' %}
+                    {% include "reservations/_fields.html" %}
+                    {% endwith %}
+                    <div class="col-12">
+                        <button class="btn btn-primary" type="submit">Spremi rezervaciju</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% if res_pagination.total_items == 0 %}
+            <p class="text-muted text-center py-3 mb-0">Trenutno nema ni jedne rezervacije za ovu salu.</p>
+        {% else %}
+        <div class="table-responsive table-soft">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Par</th>
+                        <th>Datum</th>
+                        <th>Status</th>
+                        <th>Gostiju</th>
+                        <th>Cijena najma (€)</th>
+                        <th class="text-end">Akcija</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reservations %}
+                    <tr>
+                        <td>{{ r.bride_name }} i {{ r.groom_name }}</td>
+                        <td>{{ r.date }}</td>
+                        <td>{{ r.status | status_label }}</td>
+                        <td>{{ r.guest_count }}</td>
+                        <td>{{ "%.2f"|format(r.price) }} €</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('reservations.reservation_edit', reservation_id=r.id) }}" title="Uredi rezervaciju">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+            <small class="text-muted">Ukupno rezervacija: {{ res_pagination.total_items }}</small>
+            {{ pagination_nav(res_pagination, 'halls.hall_edit', {'hall_id': hall.id}, aria_label='Paginacija rezervacija') }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

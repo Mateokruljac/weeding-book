@@ -1,0 +1,31 @@
+{% macro pagination_nav(pagination, endpoint, params, sorting=none, aria_label='Paginacija') %}
+{% if pagination.total_pages > 1 %}
+<nav aria-label="{{ aria_label }}">
+    <ul class="pagination pagination-sm mb-0">
+        <li class="page-item {% if pagination.page == 1 %}disabled{% endif %}">
+            {% if sorting %}
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.page - 1, sort=sorting.sort, order=sorting.order, **params) }}">Prethodna</a>
+            {% else %}
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.page - 1, **params) }}">Prethodna</a>
+            {% endif %}
+        </li>
+        {% for p in range(1, pagination.total_pages + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+            {% if sorting %}
+            <a class="page-link" href="{{ url_for(endpoint, page=p, sort=sorting.sort, order=sorting.order, **params) }}">{{ p }}</a>
+            {% else %}
+            <a class="page-link" href="{{ url_for(endpoint, page=p, **params) }}">{{ p }}</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+        <li class="page-item {% if pagination.page == pagination.total_pages %}disabled{% endif %}">
+            {% if sorting %}
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.page + 1, sort=sorting.sort, order=sorting.order, **params) }}">Sljedeća</a>
+            {% else %}
+            <a class="page-link" href="{{ url_for(endpoint, page=pagination.page + 1, **params) }}">Sljedeća</a>
+            {% endif %}
+        </li>
+    </ul>
+</nav>
+{% endif %}
+{% endmacro %}

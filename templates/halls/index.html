@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% from "macros/sort.html" import sort_th, sort_badge %}
+{% from "macros/pagination.html" import pagination_nav %}
+{% block content %}
+{% set sort_labels = {'name': 'Naziv', 'location': 'Lokacija', 'capacity': 'Kapacitet', 'price': 'Cijena'} %}
+{% set filter_params = {'search': search, 'location': filters.location, 'min_price': filters.min_price, 'max_price': filters.max_price} %}
+{% set has_filters = search or filters.location or filters.min_price or filters.max_price %}
+<div class="card card-soft">
+    <div class="card-body">
+        <div class="mb-3">
+            <a class="btn btn-primary" href="{{ url_for('halls.hall_create') }}">Dodaj salu</a>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h3 class="h5 mb-0">Popis sala</h3>
+            <div class="d-flex gap-2 flex-wrap">
+                <form method="get" class="d-flex gap-2">
+                    <input class="form-control search-input" name="search" value="{{ search }}" placeholder="Pretrazi tablicu">
+                    <input type="hidden" name="location" value="{{ filters.location }}">
+                    <input type="hidden" name="min_price" value="{{ filters.min_price }}">
+                    <input type="hidden" name="max_price" value="{{ filters.max_price }}">
+                    <input type="hidden" name="sort" value="{{ sorting.sort }}">
+                    <input type="hidden" name="order" value="{{ sorting.order }}">
+                    <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#hallFilterCollapse" title="Filter">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+
+        {% if has_filters %}
+        <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+            <small class="text-muted">Aktivni filteri:</small>
+            {% if search %}<span class="badge filter-badge">Pretraga: {{ search }}</span>{% endif %}
+            {% if filters.location %}<span class="badge filter-badge">Lokacija: {{ filters.location }}</span>{% endif %}
+            {% if filters.min_price %}<span class="badge filter-badge">Minimalna cijena: {{ filters.min_price }} €</span>{% endif %}
+            {% if filters.max_price %}<span class="badge filter-badge">Maksimalna cijena: {{ filters.max_price }} €</span>{% endif %}
+            {{ sort_badge(sorting, sort_labels) }}
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('halls.halls_index', sort=sorting.sort, order=sorting.order) }}">Očisti filtere</a>
+        </div>
+        {% elif sorting.sort != 'name' or sorting.order != 'asc' %}
+        <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+            <small class="text-muted">Aktivno sortiranje:</small>
+            {{ sort_badge(sorting, sort_labels) }}
+        </div>
+        {% endif %}
+
+        <div class="collapse mb-3" id="hallFilterCollapse">
+            <div class="border rounded p-3">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label" for="location">Lokacija</label>
+                        <input class="form-control" id="location" name="location" value="{{ filters.location }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="min_price">Minimalna cijena (€)</label>
+                        <input class="form-control" id="min_price" type="number" step="0.01" name="min_price" value="{{ filters.min_price }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="max_price">Maksimalna cijena (€)</label>
+                        <input class="form-control" id="max_price" type="number" step="0.01" name="max_price" value="{{ filters.max_price }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" type="submit">Primijeni</button>
+                    </div>
+                    <input type="hidden" name="search" value="{{ search }}">
+                    <input type="hidden" name="sort" value="{{ sorting.sort }}">
+                    <input type="hidden" name="order" value="{{ sorting.order }}">
+                </form>
+            </div>
+        </div>
+        <div class="table-responsive table-soft">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        {{ sort_th('name', 'Naziv', sorting, 'halls.halls_index', filter_params) }}
+                        {{ sort_th('location', 'Lokacija', sorting, 'halls.halls_index', filter_params) }}
+                        {{ sort_th('capacity', 'Kapacitet', sorting, 'halls.halls_index', filter_params) }}
+                        {{ sort_th('price', 'Cijena (€)', sorting, 'halls.halls_index', filter_params) }}
+                        <th class="text-end">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in halls %}
+                    <tr>
+                        <td>{{ h.name }}</td>
+                        <td>{{ h.location }}</td>
+                        <td>{{ h.capacity }}</td>
+                        <td>{{ "%.2f"|format(h.price) }} €</td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('halls.hall_edit', hall_id=h.id) }}" title="Uredi">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" class="confirm-delete" data-message="Ova se akcija ne moze ponistiti." action="{{ url_for('halls.hall_delete', hall_id=h.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" title="Obriši">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center py-3">Nema rezultata.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+            <small class="text-muted">Ukupno zapisa: {{ pagination.total_items }}</small>
+            {{ pagination_nav(pagination, 'halls.halls_index', filter_params, sorting, 'Paginacija sala') }}
+        </div>
+    </div>
+</div>
+{% endblock %}

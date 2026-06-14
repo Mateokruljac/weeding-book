@@ -1,0 +1,21 @@
+{% macro sort_arrows(column, sorting) %}
+<span class="sort-icons" aria-hidden="true">
+    <i class="bi bi-caret-up-fill {% if sorting.sort == column and sorting.order == 'asc' %}sort-active{% else %}sort-inactive{% endif %}"></i>
+    <i class="bi bi-caret-down-fill {% if sorting.sort == column and sorting.order == 'desc' %}sort-active{% else %}sort-inactive{% endif %}"></i>
+</span>
+{% endmacro %}
+
+{% macro sort_th(column, label, sorting, endpoint, params) %}
+<th>
+    <a class="sort-link" href="{{ url_for(endpoint, sort=column, order=('desc' if sorting.sort == column and sorting.order == 'asc' else 'asc'), **params) }}">
+        <span>{{ label }}</span>{{ sort_arrows(column, sorting) }}
+    </a>
+</th>
+{% endmacro %}
+
+{% macro sort_badge(sorting, labels) %}
+<span class="badge filter-badge">
+    {{ labels.get(sorting.sort, sorting.sort) }}
+    {% if sorting.order == 'asc' %}<i class="bi bi-caret-up-fill"></i>{% else %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+</span>
+{% endmacro %}
