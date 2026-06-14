@@ -1,10 +1,33 @@
 body {
-    background: #fff7fb;
+    min-height: 100vh;
+    background-color: #fff7fb;
+    background-image:
+        linear-gradient(rgba(255, 247, 251, 0.58), rgba(255, 247, 251, 0.58)),
+        url("../images/flower_image.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #2f1f28;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(217, 109, 149, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(255, 231, 241, 0.55), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(217, 109, 149, 0.08), transparent 34%);
+    z-index: -1;
 }
 
 .navbar-glass {
-    background: white;
-    border-bottom: 1px solid #f5cfe0;
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(245, 207, 224, 0.9);
+    box-shadow: 0 4px 18px rgba(128, 68, 92, 0.08);
+    backdrop-filter: blur(10px);
 }
 
 .brand-logo {
@@ -12,34 +35,128 @@ body {
     height: 32px;
 }
 
+.navbar-brand {
+    color: #28141d;
+    text-decoration: none;
+}
+
+.navbar-brand:hover {
+    color: #6f2f4b;
+}
+
+.brand-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: #2b1720;
+    line-height: 1;
+}
+
+.wedify-logo {
+    position: relative;
+    width: 42px;
+    height: 30px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.wedify-logo span {
+    position: absolute;
+    width: 23px;
+    height: 23px;
+    top: 4px;
+    border: 3px solid #d4a64f;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 2px 8px rgba(212, 166, 79, 0.22),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+    transition: all 0.2s ease;
+}
+
+.wedify-logo span:first-child {
+    left: 3px;
+}
+
+.wedify-logo span:last-child {
+    right: 3px;
+    border-color: #e59ab7;
+}
+
+.wedify-logo::after {
+    content: "✦";
+    position: absolute;
+    top: -5px;
+    right: 0;
+    font-size: 11px;
+    color: #d9a4ba;
+    text-shadow: 0 1px 4px rgba(217, 109, 149, 0.25);
+}
+
+.navbar-brand:hover .wedify-logo span:first-child {
+    border-color: #c99735;
+    transform: translateY(-1px);
+}
+
+.navbar-brand:hover .wedify-logo span:last-child {
+    border-color: #d96d95;
+    transform: translateY(-1px);
+}
+
+.navbar-brand:hover .brand-name {
+    color: #6f2f4b;
+}
+
 .navbar .nav-link {
     color: #8a4c67;
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 7px 13px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
 }
 
 .navbar .nav-link:hover,
 .navbar .nav-link.active {
     background: #ffe7f1;
     color: #6f2f4b;
+    box-shadow: 0 4px 10px rgba(217, 109, 149, 0.12);
+}
+
+main.container {
+    position: relative;
 }
 
 .card {
-    border: 1px solid #f5d8e5;
-    border-radius: 12px;
+    border: 1px solid rgba(245, 216, 229, 0.95);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(7px);
 }
 
 .card-soft {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 12px 28px rgba(128, 68, 92, 0.11);
+}
+
+.card-body {
+    position: relative;
+}
+
+.card h1,
+.card h2,
+.card h3,
+.card h4,
+.card h5,
+.card h6 {
+    color: #24131a;
 }
 
 .table-soft {
-    border-radius: 10px;
+    border-radius: 13px;
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.96);
 }
 
 .table-soft thead th {
-    background: #ffeef5;
+    background: rgba(255, 238, 245, 0.96);
     color: #7a3f58;
     font-weight: 600;
     vertical-align: middle;
@@ -53,6 +170,10 @@ body {
     align-items: center;
     gap: 0.35rem;
     padding: 0.25rem 0;
+}
+
+.table-soft tbody td {
+    background: rgba(255, 255, 255, 0.92);
 }
 
 .sort-icons {
@@ -79,25 +200,50 @@ body {
     background: #fff6fa;
 }
 
+.btn {
+    border-radius: 9px;
+}
+
 .btn-primary {
     background: #d96d95;
     border-color: #d96d95;
+    box-shadow: 0 6px 14px rgba(217, 109, 149, 0.18);
 }
 
 .btn-primary:hover {
     background: #c75b84;
     border-color: #c75b84;
+    transform: translateY(-1px);
 }
 
 .btn-outline-primary {
     color: #8d3557;
     border-color: #d9a4ba;
+    background: rgba(255, 255, 255, 0.72);
 }
 
 .btn-outline-primary:hover {
     background: #efbfd1;
     border-color: #efbfd1;
     color: #5a273d;
+    transform: translateY(-1px);
+}
+
+.btn-outline-danger {
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.form-control,
+.form-select {
+    border-color: #ead4df;
+    border-radius: 9px;
+    background-color: rgba(255, 255, 255, 0.92);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #d96d95;
+    box-shadow: 0 0 0 0.2rem rgba(217, 109, 149, 0.18);
 }
 
 .swal2-confirm {
@@ -120,17 +266,18 @@ body {
 .filter-badge {
     background: #ffe7f1;
     color: #6f2f4b;
+    border: 1px solid #f5cfe0;
 }
 
 .readonly-field {
-    background-color: #ececec;
+    background-color: #f1eef0;
     color: #6c757d;
     cursor: not-allowed;
 }
 
 .pagination {
     --bs-pagination-color: #8d3557;
-    --bs-pagination-bg: #fff;
+    --bs-pagination-bg: rgba(255, 255, 255, 0.86);
     --bs-pagination-border-color: #d9a4ba;
     --bs-pagination-hover-color: #5a273d;
     --bs-pagination-hover-bg: #ffe7f1;
@@ -142,6 +289,35 @@ body {
     --bs-pagination-active-bg: #d96d95;
     --bs-pagination-active-border-color: #d96d95;
     --bs-pagination-disabled-color: #b08a9a;
-    --bs-pagination-disabled-bg: #fff7fb;
+    --bs-pagination-disabled-bg: rgba(255, 247, 251, 0.8);
     --bs-pagination-disabled-border-color: #f0c9da;
+}
+
+.badge,
+.page-link {
+    border-radius: 8px;
+}
+
+canvas {
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+        background-size: auto 100%;
+        background-position: top center;
+    }
+
+    .brand-name {
+        font-size: 1.35rem;
+    }
+
+    .search-input {
+        min-width: 100%;
+    }
+
+    .card {
+        border-radius: 14px;
+    }
 }
