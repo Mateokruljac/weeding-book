@@ -1,17 +1,17 @@
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, session, url_for
-from pony.orm import commit, desc, select
+from pony.orm import commit
 from helpers import (
     create_reservation,
+    get_hall_calendar_data,
     get_page,
     get_reservation_form,
     get_wedding_hall_map,
-    paginate,
     sort_and_paginate,
     to_float,
     validate_reservation,
     wedding_hall_exists,
 )
-from models import Reservation, WeddingHall
+from models import WeddingHall
 
 bp = Blueprint("halls", __name__)
 
@@ -125,9 +125,6 @@ def hall_edit(hall_id):
             except ValueError:
                 flash("Kapacitet i cijena moraju biti ispravni brojevi.", "error")
 
-    res_page = get_page(request.args.get("page", "1"))
-    res_query = select(r for r in Reservation if r.wedding_hall.id == hall_id).order_by(desc(Reservation.date))
-    reservations, res_pagination = paginate(res_query, res_page, per_page=5)
     reservation_form = session.pop("reservation_form", None)
     reservation_errors = session.pop("reservation_errors", None)
     open_form = request.args.get("open_form") == "1" or bool(reservation_form)
@@ -135,12 +132,23 @@ def hall_edit(hall_id):
     return render_template(
         "halls/form.html",
         hall=hall,
-        reservations=reservations,
-        res_pagination=res_pagination,
         open_form=open_form,
         reservation_form=reservation_form,
         reservation_errors=reservation_errors,
     )
+
+
+@bp.route("/halls/<int:hall_id>/reservations")
+def hall_reservations_json(hall_id):
+    hall = WeddingHall.get(id=hall_id)
+    if hall is None:
+        return jsonify({"error": "Sala nije pronađena."}), 404
+
+    data = get_hall_calendar_data(
+        hall,
+        lambda reservation_id: url_for("reservations.reservation_edit", reservation_id=reservation_id),
+    )
+    return jsonify(data)
 
 
 @bp.route("/halls/<int:hall_id>/reservations/create", methods=["POST"])

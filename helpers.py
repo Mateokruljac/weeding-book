@@ -151,6 +151,38 @@ def validate_reservation(form_data, wedding_hall, hall_id, reservation_id=None):
     return errors
 
 
+def serialize_reservation_for_calendar(reservation, edit_url):
+    status = reservation.status
+    return {
+        "id": str(reservation.id),
+        "title": f"{reservation.bride_name} i {reservation.groom_name}",
+        "start": reservation.date,
+        "classNames": ["fc-event-approved" if status == STATUS_APPROVED else "fc-event-pending"],
+        "extendedProps": {
+            "bride_name": reservation.bride_name,
+            "groom_name": reservation.groom_name,
+            "bride_contact": reservation.bride_contact,
+            "groom_contact": reservation.groom_contact,
+            "date": reservation.date,
+            "status": status,
+            "status_label": "Odobrena" if status == STATUS_APPROVED else "Nije odobrena",
+            "guest_count": reservation.guest_count,
+            "price": reservation.price,
+            "edit_url": edit_url,
+        },
+    }
+
+
+def get_hall_calendar_data(hall, edit_url_builder):
+    reservations = sorted(hall.reservations, key=lambda r: r.date)
+    events = [
+        serialize_reservation_for_calendar(r, edit_url_builder(r.id))
+        for r in reservations
+    ]
+    blocked_dates = sorted({r.date for r in reservations if r.status == STATUS_APPROVED})
+    return {"events": events, "blocked_dates": blocked_dates, "total": len(reservations)}
+
+
 def create_reservation(hall, form_data):
     return Reservation(
         wedding_hall=hall,

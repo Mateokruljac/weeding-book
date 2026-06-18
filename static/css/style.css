@@ -302,6 +302,93 @@ canvas {
     max-width: 100%;
 }
 
+.hall-calendar {
+    --fc-border-color: rgba(245, 207, 224, 0.9);
+    --fc-today-bg-color: rgba(217, 109, 149, 0.12);
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: rgba(255, 255, 255, 0.55);
+}
+
+.hall-calendar .fc {
+    font-family: inherit;
+}
+
+.hall-calendar .fc-toolbar-title {
+    font-size: 1.15rem;
+    color: #2f1f28;
+}
+
+.hall-calendar .fc-button-primary {
+    background-color: #d96d95;
+    border-color: #d96d95;
+}
+
+.hall-calendar .fc-button-primary:not(:disabled).fc-button-active,
+.hall-calendar .fc-button-primary:not(:disabled):active,
+.hall-calendar .fc-button-primary:hover {
+    background-color: #c45a82;
+    border-color: #c45a82;
+}
+
+.hall-calendar .fc-day-disabled {
+    background-color: rgba(108, 117, 125, 0.12);
+}
+
+.hall-calendar .fc-day-disabled .fc-daygrid-day-frame {
+    cursor: not-allowed;
+}
+
+.hall-calendar .fc-day-disabled .fc-daygrid-day-number {
+    color: #8a7a82;
+}
+
+.hall-calendar .fc-day-disabled .fc-event {
+    cursor: pointer;
+}
+
+.hall-calendar .fc-day-available .fc-daygrid-day-frame {
+    cursor: pointer;
+}
+
+.hall-calendar .fc-event-approved {
+    background-color: #2e7d5b;
+    border-color: #2e7d5b;
+}
+
+.hall-calendar .fc-event-pending {
+    background-color: #c9a227;
+    border-color: #c9a227;
+}
+
+.hall-calendar-details dt {
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.hall-calendar-details dt:first-child {
+    margin-top: 0;
+}
+
+.calendar-legend {
+    display: inline-block;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 0.2rem;
+    vertical-align: -0.1rem;
+}
+
+.calendar-legend-approved {
+    background-color: #2e7d5b;
+}
+
+.calendar-legend-pending {
+    background-color: #c9a227;
+}
+
+.calendar-legend-disabled {
+    background-color: rgba(108, 117, 125, 0.35);
+}
+
 @media (max-width: 768px) {
     body {
         background-attachment: scroll;

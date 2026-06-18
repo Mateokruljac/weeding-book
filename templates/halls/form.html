@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% from "macros/pagination.html" import pagination_nav %}
 {% block content %}
 
 <div class="card card-soft">
@@ -52,45 +51,28 @@
                 </form>
             </div>
         </div>
-        {% if res_pagination.total_items == 0 %}
-            <p class="text-muted text-center py-3 mb-0">Trenutno nema ni jedne rezervacije za ovu salu.</p>
-        {% else %}
-        <div class="table-responsive table-soft">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Par</th>
-                        <th>Datum</th>
-                        <th>Status</th>
-                        <th>Gostiju</th>
-                        <th>Cijena najma (€)</th>
-                        <th class="text-end">Akcija</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in reservations %}
-                    <tr>
-                        <td>{{ r.bride_name }} i {{ r.groom_name }}</td>
-                        <td>{{ r.date }}</td>
-                        <td>{{ r.status | status_label }}</td>
-                        <td>{{ r.guest_count }}</td>
-                        <td>{{ "%.2f"|format(r.price) }} €</td>
-                        <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('reservations.reservation_edit', reservation_id=r.id) }}" title="Uredi rezervaciju">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <div
+            id="hall-calendar"
+            class="hall-calendar"
+            data-today="{{ today }}"
+            data-reservations-url="{{ url_for('halls.hall_reservations_json', hall_id=hall.id) }}"
+            aria-label="Kalendar rezervacija"
+        ></div>
         <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-            <small class="text-muted">Ukupno rezervacija: {{ res_pagination.total_items }}</small>
-            {{ pagination_nav(res_pagination, 'halls.hall_edit', {'hall_id': hall.id}, aria_label='Paginacija rezervacija') }}
+            <small class="text-muted" id="hall-calendar-total">Ukupno rezervacija: …</small>
+            <small class="text-muted">
+                <span class="calendar-legend calendar-legend-approved"></span> Odobrena
+                <span class="calendar-legend calendar-legend-pending ms-3"></span> Nije odobrena
+                <span class="calendar-legend calendar-legend-disabled ms-3"></span> Nedostupno
+            </small>
         </div>
-        {% endif %}
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/locales/hr.global.min.js"></script>
+<script src="{{ url_for('static', filename='js/hall-calendar.js') }}"></script>
 {% endblock %}
