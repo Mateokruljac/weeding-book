@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card card-soft">
+<div class="card card-soft mb-4">
     <div class="card-body text-center py-5">
         <h1 class="display-6 mb-3">Wedify</h1>
         <p class="text-muted mb-4">
@@ -10,6 +10,37 @@
             <a class="btn btn-primary" href="{{ url_for('halls.halls_index') }}">Pretraži sale</a>
             <a class="btn btn-outline-primary" href="{{ url_for('reservations.reservation_create') }}">Napravi rezervaciju</a>
         </div>
+    </div>
+</div>
+
+<div class="card card-soft">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h2 class="h5 mb-1">Nadolazeće odobrene rezervacije</h2>
+                <small class="text-muted">Brzi pregled termina koji uskoro dolaze.</small>
+            </div>
+            <a class="btn btn-outline-primary btn-sm" href="{{ url_for('reservations.reservations_index') }}">Sve rezervacije</a>
+        </div>
+
+        {% if upcoming_reservations %}
+        <div class="upcoming-list">
+            {% for r in upcoming_reservations %}
+            <div class="upcoming-item">
+                <div>
+                    <strong>{{ r.wedding_hall.name }}</strong>
+                    <div class="text-muted small">{{ r.bride_name }} i {{ r.groom_name }}</div>
+                </div>
+                <div class="text-end">
+                    <span class="upcoming-date">{{ r.date }}</span>
+                    <div class="text-muted small">{{ r.guest_count }} gostiju</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Trenutno nema nadolazećih odobrenih rezervacija.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -1,7 +1,17 @@
+{% macro page_link(pagination, endpoint, params, p, sorting=none) %}
+<li class="page-item {% if p == pagination.page %}active{% endif %}">
+    {% if sorting %}
+    <a class="page-link" href="{{ url_for(endpoint, page=p, sort=sorting.sort, order=sorting.order, **params) }}">{{ p }}</a>
+    {% else %}
+    <a class="page-link" href="{{ url_for(endpoint, page=p, **params) }}">{{ p }}</a>
+    {% endif %}
+</li>
+{% endmacro %}
+
 {% macro pagination_nav(pagination, endpoint, params, sorting=none, aria_label='Paginacija') %}
 {% if pagination.total_pages > 1 %}
-<nav aria-label="{{ aria_label }}">
-    <ul class="pagination pagination-sm mb-0">
+<nav aria-label="{{ aria_label }}" class="pagination-wrap">
+    <ul class="pagination pagination-sm mb-0 flex-wrap gap-1">
         <li class="page-item {% if pagination.page == 1 %}disabled{% endif %}">
             {% if sorting %}
             <a class="page-link" href="{{ url_for(endpoint, page=pagination.page - 1, sort=sorting.sort, order=sorting.order, **params) }}">Prethodna</a>
@@ -9,15 +19,27 @@
             <a class="page-link" href="{{ url_for(endpoint, page=pagination.page - 1, **params) }}">Prethodna</a>
             {% endif %}
         </li>
-        {% for p in range(1, pagination.total_pages + 1) %}
-        <li class="page-item {% if p == pagination.page %}active{% endif %}">
-            {% if sorting %}
-            <a class="page-link" href="{{ url_for(endpoint, page=p, sort=sorting.sort, order=sorting.order, **params) }}">{{ p }}</a>
-            {% else %}
-            <a class="page-link" href="{{ url_for(endpoint, page=p, **params) }}">{{ p }}</a>
+
+        {{ page_link(pagination, endpoint, params, 1, sorting) }}
+
+        {% if pagination.page > 4 %}
+        <li class="page-item disabled"><span class="page-link pagination-dots">...</span></li>
+        {% endif %}
+
+        {% for p in range(pagination.page - 2, pagination.page + 3) %}
+            {% if p > 1 and p < pagination.total_pages %}
+                {{ page_link(pagination, endpoint, params, p, sorting) }}
             {% endif %}
-        </li>
         {% endfor %}
+
+        {% if pagination.page < pagination.total_pages - 3 %}
+        <li class="page-item disabled"><span class="page-link pagination-dots">...</span></li>
+        {% endif %}
+
+        {% if pagination.total_pages > 1 %}
+            {{ page_link(pagination, endpoint, params, pagination.total_pages, sorting) }}
+        {% endif %}
+
         <li class="page-item {% if pagination.page == pagination.total_pages %}disabled{% endif %}">
             {% if sorting %}
             <a class="page-link" href="{{ url_for(endpoint, page=pagination.page + 1, sort=sorting.sort, order=sorting.order, **params) }}">Sljedeća</a>

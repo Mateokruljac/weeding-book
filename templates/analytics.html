@@ -1,9 +1,29 @@
 {% extends "base.html" %}
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .analytics-chart {
+        height: 310px;
+        position: relative;
+    }
+
+    .analytics-chart-wide {
+        height: 330px;
+        position: relative;
+    }
+
+    .analytics-soft-card {
+        border-radius: 18px;
+    }
+
+    .analytics-soft-card .card-body {
+        padding: 1.25rem;
+    }
+</style>
 {% endblock %}
 {% block content %}
 {% set s = stats %}
+
 <h2 class="h4 mb-4">Analitika</h2>
 
 <div class="row g-3 mb-4">
@@ -15,6 +35,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-6 col-lg-3">
         <div class="card card-soft h-100">
             <div class="card-body">
@@ -23,6 +44,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-6 col-lg-3">
         <div class="card card-soft h-100">
             <div class="card-body">
@@ -31,6 +53,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-6 col-lg-3">
         <div class="card card-soft h-100">
             <div class="card-body">
@@ -39,6 +62,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-6 col-lg-3">
         <div class="card card-soft h-100">
             <div class="card-body">
@@ -47,6 +71,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-6 col-lg-3">
         <div class="card card-soft h-100">
             <div class="card-body">
@@ -55,6 +80,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-6 col-lg-3">
         <div class="card card-soft h-100">
             <div class="card-body">
@@ -64,6 +90,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-md-6 col-lg-3">
         <div class="card card-soft h-100">
             <div class="card-body">
@@ -77,38 +104,49 @@
 
 <div class="row g-3">
     <div class="col-lg-4">
-        <div class="card card-soft h-100">
+        <div class="card card-soft analytics-soft-card h-100">
             <div class="card-body">
                 <h3 class="h5 mb-1">Najpopularnije sale</h3>
                 <p class="text-muted small mb-3">Broj odobrenih rezervacija po sali</p>
+
                 {% if top_halls and top_halls|selectattr('count')|list|length > 0 %}
-                <canvas id="hallChart"></canvas>
+                <div class="analytics-chart">
+                    <canvas id="hallChart"></canvas>
+                </div>
                 {% else %}
                 <p class="text-muted text-center py-4 mb-0">Nema odobrenih rezervacija za prikaz.</p>
                 {% endif %}
             </div>
         </div>
     </div>
+
     <div class="col-lg-4">
-        <div class="card card-soft h-100">
+        <div class="card card-soft analytics-soft-card h-100">
             <div class="card-body">
                 <h3 class="h5 mb-1">Status rezervacija</h3>
-                <p class="text-muted small mb-3">Udio odobrenih i neodobrenih</p>
+                <p class="text-muted small mb-3">Odobrene i neodobrene rezervacije</p>
+
                 {% if s.get('total', 0) > 0 %}
-                <canvas id="statusChart"></canvas>
+                <div class="analytics-chart">
+                    <canvas id="statusChart"></canvas>
+                </div>
                 {% else %}
                 <p class="text-muted text-center py-4 mb-0">Nema rezervacija za prikaz.</p>
                 {% endif %}
             </div>
         </div>
     </div>
+
     <div class="col-lg-4">
-        <div class="card card-soft h-100">
+        <div class="card card-soft analytics-soft-card h-100">
             <div class="card-body">
                 <h3 class="h5 mb-1">Prihod po mjesecima</h3>
                 <p class="text-muted small mb-3">Samo odobrene rezervacije (€)</p>
+
                 {% if by_month %}
-                <canvas id="revenueChart"></canvas>
+                <div class="analytics-chart">
+                    <canvas id="revenueChart"></canvas>
+                </div>
                 {% else %}
                 <p class="text-muted text-center py-4 mb-0">Nema prihoda za prikaz.</p>
                 {% endif %}
@@ -120,11 +158,14 @@
 {% if by_month %}
 <div class="row g-3 mt-1">
     <div class="col-12">
-        <div class="card card-soft">
+        <div class="card card-soft analytics-soft-card">
             <div class="card-body">
                 <h3 class="h5 mb-1">Odobrene rezervacije po mjesecima</h3>
-                <p class="text-muted small mb-3">Broj vjencanja po mjesecu</p>
-                <canvas id="monthChart"></canvas>
+                <p class="text-muted small mb-3">Broj vjenčanja po mjesecu</p>
+
+                <div class="analytics-chart-wide">
+                    <canvas id="monthChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -132,12 +173,17 @@
 {% endif %}
 
 <script>
-    const chartColors = {
-        pink: "rgba(217, 109, 149, 0.75)",
-        pinkBorder: "rgba(141, 53, 87, 1)",
-        green: "rgba(25, 135, 84, 0.75)",
-        red: "rgba(220, 53, 69, 0.75)",
-    };
+    const softColors = [
+        "rgba(217, 109, 149, 0.78)",
+        "rgba(212, 166, 79, 0.78)",
+        "rgba(255, 199, 220, 0.82)",
+        "rgba(154, 112, 181, 0.72)",
+        "rgba(246, 165, 132, 0.78)",
+        "rgba(196, 76, 117, 0.82)"
+    ];
+
+    Chart.defaults.font.family = "'Segoe UI', Arial, sans-serif";
+    Chart.defaults.color = "#604053";
 
     {% if top_halls and top_halls|selectattr('count')|list|length > 0 %}
     new Chart(document.getElementById("hallChart"), {
@@ -147,14 +193,19 @@
             datasets: [{
                 label: "Odobrene rezervacije",
                 data: [{% for h in top_halls if h.count %}{{ h.count }}{% if not loop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: chartColors.pink,
-                borderColor: chartColors.pinkBorder,
-                borderWidth: 1
+                backgroundColor: softColors,
+                borderRadius: 10,
+                borderSkipped: false
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "rgba(141, 53, 87, 0.08)" } },
+                x: { grid: { display: false }, ticks: { maxRotation: 25, minRotation: 25 } }
+            }
         }
     });
     {% endif %}
@@ -166,12 +217,21 @@
             labels: ["Odobrene", "Neodobrene"],
             datasets: [{
                 data: [{{ s.get('approved', 0) }}, {{ s.get('not_approved', 0) }}],
-                backgroundColor: [chartColors.green, chartColors.red],
-                borderWidth: 0
+                backgroundColor: ["rgba(65, 168, 95, 0.82)", "rgba(220, 53, 69, 0.78)"],
+                borderColor: "#ffffff",
+                borderWidth: 3,
+                cutout: "58%"
             }]
         },
         options: {
-            plugins: { legend: { position: "bottom" } }
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: { usePointStyle: true, pointStyle: "circle" }
+                }
+            }
         }
     });
     {% endif %}
@@ -184,14 +244,19 @@
             datasets: [{
                 label: "Prihod (€)",
                 data: [{% for m in by_month %}{{ m.revenue }}{% if not loop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: chartColors.pink,
-                borderColor: chartColors.pinkBorder,
-                borderWidth: 1
+                backgroundColor: "rgba(217, 109, 149, 0.78)",
+                borderRadius: 10,
+                borderSkipped: false
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
+            scales: {
+                y: { beginAtZero: true, grid: { color: "rgba(141, 53, 87, 0.08)" } },
+                x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } }
+            }
         }
     });
 
@@ -200,19 +265,27 @@
         data: {
             labels: [{% for m in by_month %}"{{ m.month }}"{% if not loop.last %}, {% endif %}{% endfor %}],
             datasets: [{
-                label: "Broj odobrenih",
+                label: "Broj vjenčanja",
                 data: [{% for m in by_month %}{{ m.count }}{% if not loop.last %}, {% endif %}{% endfor %}],
-                borderWidth: 2,
+                borderWidth: 3,
                 fill: true,
-                borderColor: chartColors.pinkBorder,
-                backgroundColor: "rgba(217, 109, 149, 0.15)",
-                pointBackgroundColor: chartColors.pinkBorder,
-                tension: 0.35
+                borderColor: "rgba(141, 53, 87, 0.95)",
+                backgroundColor: "rgba(217, 109, 149, 0.12)",
+                pointBackgroundColor: "#ffffff",
+                pointBorderColor: "rgba(141, 53, 87, 0.95)",
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                tension: 0.42
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "rgba(141, 53, 87, 0.08)" } },
+                x: { grid: { display: false } }
+            }
         }
     });
     {% endif %}
