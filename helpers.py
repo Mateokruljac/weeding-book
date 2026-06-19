@@ -35,7 +35,7 @@ def paginate(query, page, per_page=5):
     return items, {"page": page, "total_pages": total_pages, "total_items": total_items}
 
 
-def sort_and_paginate(query, sort_map, sort, order, page, per_page=4):
+def sort_and_paginate(query, sort_map, sort, order, page, per_page=8):
     sort = sort if sort in sort_map else next(iter(sort_map))
     order = order if order in ("asc", "desc") else "asc"
     field = sort_map[sort]

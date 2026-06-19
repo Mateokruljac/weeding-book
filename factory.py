@@ -29,6 +29,10 @@ def create_app(config_class=Config):
 
     @app.template_filter("status_label")
     def status_label(status):
+        if status == "approved":
+            return "Odobrena"
+        if status == "not_approved":
+            return "Nije odobrena"
         if status == STATUS_APPROVED:
             return "Odobrena"
         if status == STATUS_NOT_APPROVED:
