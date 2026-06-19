@@ -42,9 +42,54 @@
             <div class="border rounded p-3">
                 <h4 class="h6 mb-3">Zakaži rezervaciju</h4>
                 <form method="post" action="{{ url_for('halls.hall_reservation_create', hall_id=hall.id) }}" class="row g-3">
-                    {% with fd=reservation_form or {}, fe=reservation_errors or {}, allow_past_date=false, fixed_hall=hall, date_hint='Datum se ne može spremiti ako već postoji odobrena rezervacija.' %}
-                    {% include "reservations/_fields.html" %}
-                    {% endwith %}
+                    {% set fd = reservation_form or {} %}
+                    {% set fe = reservation_errors or {} %}
+                    <div class="col-md-6">
+                        <label class="form-label" for="date">Datum</label>
+                        <input class="form-control {% if fe.get('date') %}is-invalid{% endif %}" id="date" type="date" name="date"
+                            min="{{ today }}"
+                            required value="{{ fd.date or '' }}">
+                        {% if fe.get('date') %}<div class="invalid-feedback d-block">{{ fe.date }}</div>{% endif %}
+                        <small class="text-muted">Datum se ne može spremiti ako već postoji odobrena rezervacija.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="bride_name">Ime i prezime mladenke</label>
+                        <input class="form-control {% if fe.get('bride_name') %}is-invalid{% endif %}" id="bride_name" name="bride_name" type="text" value="{{ fd.bride_name or '' }}">
+                        {% if fe.get('bride_name') %}<div class="invalid-feedback d-block">{{ fe.bride_name }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="groom_name">Ime i prezime mladoženje</label>
+                        <input class="form-control {% if fe.get('groom_name') %}is-invalid{% endif %}" id="groom_name" name="groom_name" type="text" value="{{ fd.groom_name or '' }}">
+                        {% if fe.get('groom_name') %}<div class="invalid-feedback d-block">{{ fe.groom_name }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="bride_contact">Kontakt mladenke</label>
+                        <input class="form-control {% if fe.get('bride_contact') %}is-invalid{% endif %}" id="bride_contact" name="bride_contact" type="text" value="{{ fd.bride_contact or '' }}">
+                        {% if fe.get('bride_contact') %}<div class="invalid-feedback d-block">{{ fe.bride_contact }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="groom_contact">Kontakt mladoženja</label>
+                        <input class="form-control {% if fe.get('groom_contact') %}is-invalid{% endif %}" id="groom_contact" name="groom_contact" type="text" value="{{ fd.groom_contact or '' }}">
+                        {% if fe.get('groom_contact') %}<div class="invalid-feedback d-block">{{ fe.groom_contact }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="guest_count">Broj gostiju (maksimalno: {{ hall.capacity }})</label>
+                        <input class="form-control {% if fe.get('guest_count') %}is-invalid{% endif %}" id="guest_count" name="guest_count" type="number" min="1" max="{{ hall.capacity }}" required value="{{ fd.guest_count or '' }}">
+                        {% if fe.get('guest_count') %}<div class="invalid-feedback d-block">{{ fe.guest_count }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="rental_price">Cijena najma (€)</label>
+                        <input class="form-control readonly-field" id="rental_price" type="text" readonly value="{{ '%.2f'|format(hall.price) }} €">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="status">Status</label>
+                        <select class="form-select {% if fe.get('status') %}is-invalid{% endif %}" id="status" name="status" required>
+                            {% set status_value = fd.status or 'not approved' %}
+                            <option value="approved" {% if status_value == 'approved' %}selected{% endif %}>Odobrena</option>
+                            <option value="not approved" {% if status_value != 'approved' %}selected{% endif %}>Nije odobrena</option>
+                        </select>
+                        {% if fe.get('status') %}<div class="invalid-feedback d-block">{{ fe.status }}</div>{% endif %}
+                    </div>
                     <div class="col-12">
                         <button class="btn btn-primary" type="submit">Spremi rezervaciju</button>
                     </div>

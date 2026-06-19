@@ -1,7 +1,6 @@
 from datetime import date
 
 from flask import Blueprint, render_template
-from pony.orm import avg, select, sum
 
 from models import STATUS_APPROVED, Reservation, WeddingHall
 
@@ -10,84 +9,50 @@ bp = Blueprint("analytics", __name__)
 
 @bp.route("/analytics")
 def analytics():
-    today_str = date.today().isoformat()
+    today = date.today().isoformat()
 
-    total = Reservation.select().count()
-    approved = select(
-        r for r in Reservation
-        if r.status == STATUS_APPROVED or r.status == "approved"
-    ).count()
-    not_approved = max(total - approved, 0)
+    all_reservations = list(Reservation.select())
+    approved = [r for r in all_reservations if r.status == STATUS_APPROVED]
+
+    total = len(all_reservations)
+    approved_count = len(approved)
+    not_approved = total - approved_count
 
     total_halls = WeddingHall.select().count()
-    approval_rate = round(approved / total * 100, 1) if total else 0
+    approval_rate = round(approved_count / total * 100, 1) if total else 0
+    total_revenue = sum(r.price for r in approved)
+    avg_guests = round(sum(r.guest_count for r in approved) / approved_count) if approved_count else 0
+    upcoming = sum(1 for r in approved if r.date >= today)
 
-    total_revenue = (
-        sum(
-            r.price for r in Reservation
-            if r.status == STATUS_APPROVED or r.status == "approved"
-        )
-        or 0
-    )
+    top_halls = []
+    for hall in WeddingHall.select():
+        count = sum(1 for r in approved if r.wedding_hall == hall)
+        top_halls.append({"name": hall.name, "count": count})
+    top_halls.sort(key=lambda h: h["count"], reverse=True)
+    top_halls = top_halls[:6]
 
-    avg_guests = (
-        avg(
-            r.guest_count for r in Reservation
-            if r.status == STATUS_APPROVED or r.status == "approved"
-        )
-        or 0
-    )
+    by_month_dict = {}
+    for r in approved:
+        month = r.date[:7]
+        if month not in by_month_dict:
+            by_month_dict[month] = {"month": month, "count": 0, "revenue": 0}
+        by_month_dict[month]["count"] += 1
+        by_month_dict[month]["revenue"] += r.price
 
-    upcoming = select(
-        r for r in Reservation
-        if (r.status == STATUS_APPROVED or r.status == "approved") and r.date >= today_str
-    ).count()
-
-    top_halls = sorted(
-        [
-            {
-                "name": hall.name,
-                "count": select(
-                    r for r in Reservation
-                    if r.wedding_hall == hall and (r.status == STATUS_APPROVED or r.status == "approved")
-                ).count(),
-            }
-            for hall in WeddingHall.select()
-        ],
-        key=lambda h: h["count"],
-        reverse=True,
-    )[:6]
-
-    monthly_revenue = {}
-    monthly_count = {}
-
-    for reservation in select(
-        r for r in Reservation
-        if r.status == STATUS_APPROVED or r.status == "approved"
-    ):
-        month = reservation.date[:7]
-        monthly_revenue[month] = monthly_revenue.get(month, 0) + reservation.price
-        monthly_count[month] = monthly_count.get(month, 0) + 1
-
-    by_month = [
-        {
-            "month": month,
-            "count": monthly_count[month],
-            "revenue": round(monthly_revenue[month], 2),
-        }
-        for month in sorted(monthly_revenue)
-    ]
+    by_month = sorted(by_month_dict.values(), key=lambda m: m["month"])
+    for m in by_month:
+        m["revenue"] = round(m["revenue"], 2)
 
     return render_template(
         "analytics.html",
         stats={
             "total": total,
-            "approved": approved,
+            "approved": approved_count,
             "not_approved": not_approved,
             "total_halls": total_halls,
             "approval_rate": approval_rate,
             "total_revenue": total_revenue,
-            "avg_guests": round(avg_guests),
+            "avg_guests": avg_guests,
             "upcoming": upcoming,
         },
         top_halls=top_halls,

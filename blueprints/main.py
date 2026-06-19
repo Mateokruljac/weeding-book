@@ -1,11 +1,14 @@
 from datetime import date
 
 from flask import Blueprint, render_template
-from pony.orm import select
 
-from models import Reservation, STATUS_APPROVED, WeddingHall
+from models import STATUS_APPROVED, Reservation, WeddingHall
 
 bp = Blueprint("main", __name__)
+
+
+def reservation_date(reservation):
+    return reservation.date
 
 
 @bp.route("/")
@@ -13,20 +16,16 @@ def index():
     today = date.today().isoformat()
 
     total_halls = WeddingHall.select().count()
-    total_reservations = Reservation.select().count()
-    approved_reservations = select(
-        r for r in Reservation
-        if r.status == STATUS_APPROVED or r.status == "approved"
-    ).count()
-    not_approved_reservations = max(total_reservations - approved_reservations, 0)
+    all_reservations = list(Reservation.select())
+    approved = [r for r in all_reservations if r.status == STATUS_APPROVED]
 
-    upcoming_reservations = (
-        select(
-            r for r in Reservation
-            if (r.status == STATUS_APPROVED or r.status == "approved") and r.date >= today
-        )
-        .order_by(Reservation.date)[:5]
-    )
+    total_reservations = len(all_reservations)
+    approved_reservations = len(approved)
+    not_approved_reservations = total_reservations - approved_reservations
+
+    upcoming = [r for r in approved if r.date >= today]
+    upcoming.sort(key=reservation_date)
+    upcoming_reservations = upcoming[:5]
 
     return render_template(
         "home.html",
