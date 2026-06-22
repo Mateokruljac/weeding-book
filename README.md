@@ -26,6 +26,7 @@ Aplikacija je podijeljena u nekoliko glavnih dijelova:
 - sale
 - rezervacije
 - analitika
+- odabir datuma kroz kalendar u formi rezervacije
 - pretraga, filtriranje i sortiranje
 - paginacija podataka
 - vizualni prikaz statusa rezervacija
@@ -67,6 +68,8 @@ Sale su važan dio sustava jer se svaka rezervacija veže uz jednu konkretnu sal
 ## Rezervacije
 
 Dio **Rezervacije** povezuje sale s konkretnim događajima. Kod unosa nove rezervacije korisnik bira salu, datum, unosi podatke o mladenki i mladoženji, njihove kontakte, broj gostiju i status rezervacije.
+
+Datum rezervacije odabire se kroz kalendar u polju za datum. To olakšava unos jer korisnik ne mora ručno pisati datum, nego ga jednostavno odabere iz kalendarskog prikaza. Time je unos pregledniji i smanjuje se mogućnost pogreške pri upisu datuma.
 
 Za svaku rezervaciju evidentiraju se:
 
@@ -153,6 +156,7 @@ Aplikacija ima osnovna pravila koja pomažu u smanjenju pogrešaka pri unosu pod
 Primjeri pravila:
 
 - obavezna polja moraju biti popunjena
+- datum rezervacije odabire se kroz kalendar u formi za unos
 - broj gostiju ne smije prelaziti kapacitet odabrane sale
 - odobrena rezervacija zauzima termin
 - za istu salu i isti datum ne mogu postojati dvije odobrene rezervacije
@@ -362,7 +366,6 @@ Moguće nadogradnje su:
 - detaljniji izvještaji
 - dodatne usluge uz rezervaciju
 - evidencija menija, dekoracija i posebnih zahtjeva
-- povezivanje s vanjskim kalendarom
 - prelazak na veću bazu podataka, primjerice PostgreSQL ili MySQL
 
 Ove nadogradnje nisu nužne za osnovni rad aplikacije, ali bi bile korisne kada bi se aplikacija koristila u stvarnom poslovnom okruženju.
